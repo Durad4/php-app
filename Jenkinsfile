@@ -1,14 +1,25 @@
 pipeline {
     agent {
         docker {
-            image 'php:8.2'   // agent pakai PHP docker image
+            image 'php:8.2'
+            args '-u root --entrypoint=""'  // biar bisa apt install
         }
     }
     stages {
+        stage('Prepare') {
+            steps {
+                sh '''
+                    apt-get update
+                    apt-get install -y git unzip
+                '''
+            }
+        }
         stage('Install Dependencies') {
             steps {
-                sh 'curl -sS https://getcomposer.org/installer | php'
-                sh 'php composer.phar install'
+                sh '''
+                    curl -sS https://getcomposer.org/installer | php
+                    php composer.phar install
+                '''
             }
         }
         stage('Test') {
@@ -18,7 +29,7 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                echo "Menjalankan aplikasi dengan Docker"
+                echo 'Menjalankan aplikasi...'
                 sh 'docker run -d -p 8081:80 -v $PWD:/var/www/html php:8.2-apache'
             }
         }
