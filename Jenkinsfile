@@ -2,7 +2,7 @@ pipeline {
     agent {
         docker {
             image 'php:8.2'
-            args '-u root --entrypoint=""'  // biar bisa apt install
+            args '-u root --entrypoint=""'
         }
     }
     stages {
@@ -28,9 +28,11 @@ pipeline {
             }
         }
         stage('Deploy') {
-    agent { label 'master' }  // pastikan dijalankan di master
-    steps {
-        echo 'Menjalankan aplikasi...'
-        sh 'docker run -d -p 8081:80 -v $PWD:/var/www/html php:8.2-apache'
+            agent { label 'master' }
+            steps {
+                echo 'Menjalankan aplikasi...'
+                sh 'docker run -d -p 8081:80 -v $PWD:/var/www/html php:8.2-apache'
+            }
+        }
     }
 }
